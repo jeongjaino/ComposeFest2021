@@ -40,6 +40,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 @Composable
+private fun MyApp(){
+    var shouldShowOnBoarding by rememberSaveable { mutableStateOf(true)}
+
+    if(shouldShowOnBoarding){
+        OnBoardingScreen(onContinueClicked = {shouldShowOnBoarding = false})
+    }
+    else{
+        Greetings()
+    }
+}
+@Composable
 fun Greetings(names: List<String> = List(1000){ "$it" }){
     LazyColumn(modifier = Modifier.padding(vertical = 4.dp)){
         items(items = names){ name ->
@@ -98,17 +109,6 @@ private fun CardContent(name: String){
                 }
             )
         }
-    }
-}
-@Composable
-private fun MyApp(){
-    var shouldShowOnBoarding by rememberSaveable { mutableStateOf(true)}
-
-    if(shouldShowOnBoarding){
-        OnBoardingScreen(onContinueClicked = {shouldShowOnBoarding = false})
-    }
-    else{
-        Greetings()
     }
 }
 @Composable
