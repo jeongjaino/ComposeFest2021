@@ -35,6 +35,7 @@ class TodoActivity : AppCompatActivity() {
         setContent {
             StateCodelabTheme {
                 Surface {
+                    TodoActivityScreen(todoViewModeL = todoViewModel)
                 }
             }
         }

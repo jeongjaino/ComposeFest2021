@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelabs.state.util.generateRandomTodoItem
@@ -53,30 +54,42 @@ fun TodoScreen(
     onEditDone: () -> Unit
 ) {
     Column {
+        val enableTopSection = currentlyEditing == null
+        TodoItemInputBackground(elevate = enableTopSection) {
+            if(enableTopSection){
+                TodoItemEntryInput(onAddItem)
+            }else{
+                Text(
+                    "Editing item",
+                    style =  MaterialTheme.typography.h6,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                )
+            }
+        }
         LazyColumn(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(top = 8.dp)
         ) {
-            items(items = items) {
-                TodoRow(
-                    todo = it,
-                    onItemClicked = { onRemoveItem(it) },
-                    modifier = Modifier.fillParentMaxWidth()
-                )
+            items(items) { todo ->
+                if (currentlyEditing?.id == todo.id) {
+                    TodoItemInlineEditor(
+                        item = currentlyEditing,
+                        onEditItemChange = onEditItemChange,
+                        onEditDone = onEditDone,
+                        onRemoveItem = { onRemoveItem(todo) }
+                    )
+                } else {
+                    TodoRow(
+                        todo,
+                        { onStartEdit(it) },
+                        Modifier.fillParentMaxSize()
+                    )
+                }
             }
-        }
-
-        // For quick testing, a random item generator button
-        Button(
-            onClick = { onAddItem(generateRandomTodoItem()) },
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-        ) {
-            Text("Add random item")
-        }
-        TodoItemInputBackground(elevate = true, modifier = Modifier.fillMaxWidth()) {
-            TodoItemInput(onItemComplete = onAddItem)
         }
     }
 }
@@ -109,17 +122,6 @@ fun TodoRow(todo: TodoItem, onItemClicked: (TodoItem) -> Unit, modifier: Modifie
     }
 }
 
-@Preview
-@Composable
-fun PreviewTodoScreen() {
-    val items = listOf(
-        TodoItem("Learn compose", TodoIcon.Event),
-        TodoItem("Take the codelab"),
-        TodoItem("Apply state", TodoIcon.Done),
-        TodoItem("Build dynamic UIs", TodoIcon.Square)
-    )
-    TodoScreen(items, {}, {})
-}
 @Composable
 fun TodoItemEntryInput(onItemComplete: (TodoItem) -> Unit){
     val (text, setText) = remember{ mutableStateOf("")}
@@ -136,8 +138,10 @@ fun TodoItemEntryInput(onItemComplete: (TodoItem) -> Unit){
         icon = icon,
         onIconChange = setIcon,
         submit = submit,
-        iconsVisible = iconsVisible
-    )
+        iconsVisible = text.isNotBlank()
+    ){
+        TodoEditButton(onClick = submit, text ="ADD",enabled = text.isNotBlank() )
+    }
 }
 @Composable
 fun TodoItemInput(
@@ -146,7 +150,8 @@ fun TodoItemInput(
     icon: TodoIcon,
     onIconChange: (TodoIcon) -> Unit,
     submit: () -> Unit,
-    iconsVisible: Boolean
+    iconsVisible: Boolean,
+    buttonSlot: @Composable () -> Unit
 ){
     Column{
         Row(
@@ -154,15 +159,16 @@ fun TodoItemInput(
                 .padding(horizontal = 16.dp)
                 .padding(top = 16.dp)
         ){
-            TodoInputTextField(
-                text = text,
-                onTextChange = onTextChange,
-                Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp))
-            TodoEditButton(onClick = { submit
-            }, text = "ADD", modifier = Modifier.align(Alignment.CenterVertically),
-            enabled = text.isNotBlank()) // enable if text is not blank
+           TodoInputText(
+               text,
+               onTextChange,
+               Modifier
+                   .weight(1f)
+                   .padding(end = 8.dp),
+               submit
+           )
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(Modifier.align(Alignment.CenterVertically)){buttonSlot()}
         }
     }
     if(iconsVisible){
@@ -172,27 +178,38 @@ fun TodoItemInput(
     }
 }
 @Composable
-fun TodoInputTextField(text: String, onTextChange: (String) -> Unit, modifier: Modifier){
-    TodoInputText(text, onTextChange, modifier)
-}
-@Composable
 fun TodoItemInlineEditor(
     item: TodoItem,
     onEditItemChange :(TodoItem) -> Unit,
     onEditDone: () ->Unit,
-    onRemoveItem: (TodoItem) -> Unit
+    onRemoveItem: () -> Unit
 ) = TodoItemInput(
     text = item.task,
     onTextChange = {onEditItemChange(item.copy(task = it))},
     icon = item.icon,
     onIconChange = {onEditItemChange(item.copy(icon = it))},
     submit = onEditDone,
-    iconsVisible = true
+    iconsVisible = true,
+    buttonSlot = {
+        Row{
+            val shrinkButton = Modifier.widthIn(20.dp) //20dp 안으로
+            TextButton(onClick = onEditDone, modifier = shrinkButton){
+                Text(
+                    text = "\uD83D\uDCBE",
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.width(30.dp)
+                )
+            }
+            TextButton(onClick = onRemoveItem, modifier = shrinkButton){
+                Text(
+                    text ="x",
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.width(30.dp)
+                )
+            }
+        }
+    }
 )
-@Preview
-@Composable
-fun PreviewTodoItemInput() = TodoItemInput(onItemComplete = {})
-
 @Preview
 @Composable
 fun PreviewTodoRow() {
