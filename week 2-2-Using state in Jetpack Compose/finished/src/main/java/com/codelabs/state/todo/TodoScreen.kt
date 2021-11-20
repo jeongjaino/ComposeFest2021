@@ -69,7 +69,7 @@ fun TodoScreen(
     onRemoveItem: (TodoItem) -> Unit,
     onStartEdit: (TodoItem) -> Unit,
     onEditItemChange: (TodoItem) -> Unit,
-    onEditDone: () -> Unit
+        onEditDone: () -> Unit
 ) {
     Column {
         val enableTopSection = currentlyEditing == null
@@ -152,7 +152,7 @@ fun TodoItemInlineEditor(
                 val shrinkButtons = Modifier.widthIn(20.dp)
                 TextButton(onClick = onEditDone, modifier = shrinkButtons) {
                     Text(
-                        "\uD83D\uDCBE", // floppy disk
+                        "\uD83D\uDCBE",
                         textAlign = TextAlign.End,
                         modifier = Modifier.width(30.dp)
                     )
@@ -304,6 +304,7 @@ fun PreviewTodoScreen() {
 fun PreviewTodoItemInput() = TodoItemEntryInput(onItemComplete = { })
 
 @Preview
+
 @Composable
 fun PreviewTodoRow() {
     val todo = remember { generateRandomTodoItem() }

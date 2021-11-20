@@ -28,7 +28,7 @@ import com.codelabs.state.ui.StateCodelabTheme
 
 class TodoActivity : AppCompatActivity() {
 
-    private val todoViewModel by viewModels<TodoViewModel>()
+   val todoViewModel by viewModels<TodoViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
