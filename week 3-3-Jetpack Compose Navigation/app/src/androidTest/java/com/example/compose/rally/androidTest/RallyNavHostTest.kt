@@ -5,7 +5,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.rally.RallyNavHost
@@ -14,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -23,6 +21,7 @@ class RallyNavHostTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
     lateinit var navController: NavHostController
 
     @Before
@@ -32,7 +31,6 @@ class RallyNavHostTest {
             RallyNavHost(navController = navController)
         }
     }
-
     @Test
     fun rallyNavHost(){
         composeTestRule.setContent {
